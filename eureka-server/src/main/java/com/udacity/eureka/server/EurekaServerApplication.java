@@ -1,14 +1,15 @@
-package com.udacity.pricing;
+package com.udacity.eureka.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 
 @SpringBootApplication
-public class PricingServiceApplication {
+@EnableEurekaServer
+public class EurekaServerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(PricingServiceApplication.class, args);
+        SpringApplication.run(EurekaServerApplication.class, args);
     }
 
 }
