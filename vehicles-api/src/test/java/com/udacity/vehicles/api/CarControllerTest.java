@@ -1,5 +1,6 @@
 package com.udacity.vehicles.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.udacity.vehicles.client.maps.MapsClient;
 import com.udacity.vehicles.client.prices.PriceClient;
 import com.udacity.vehicles.domain.Condition;
@@ -24,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.net.URI;
 import java.util.Collections;
 
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -50,6 +52,9 @@ public class CarControllerTest {
 
     @MockBean
     private CarService carService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private PriceClient priceClient;
@@ -130,10 +135,32 @@ public class CarControllerTest {
     @Test
     public void deleteCar() throws Exception {
         getCar();
+
         mvc.perform(delete("/cars/1"))
                 .andExpect(status().isNoContent());
 
         verify(carService, times(1)).delete(anyLong());
+    }
+
+    /**
+     * Tests the update of a single car.
+     *
+     * @throws Exception if the read operation for a single car fails
+     */
+    @Test
+    public void updateCar() throws Exception {
+        Car updatedCar = getCar();
+        updatedCar.getDetails().setExternalColor("black");
+
+        given(carService.save(any())).willReturn(updatedCar);
+
+        mvc.perform(put("/cars/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json.write(updatedCar).getJson())
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.details.externalColor").value("black"));
     }
 
     /**
