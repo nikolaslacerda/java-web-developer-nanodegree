@@ -1,8 +1,10 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
+import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
 import com.udacity.jwdnd.course1.cloudstorage.model.File;
 import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
+import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.services.EncryptionService;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
@@ -19,7 +21,9 @@ import javax.annotation.PostConstruct;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @Controller
@@ -28,14 +32,17 @@ public class HomeController {
 
     private final FileService filesService;
     private final NoteService notesService;
+    private final CredentialService credentialsService;
     private final EncryptionService encryptionService;
 
     private List<File> files;
     private List<Note> notes;
+    private List<Credential> credentials;
 
-    public HomeController(FileService filesService, NoteService notesService, EncryptionService encryptionService) {
+    public HomeController(FileService filesService, NoteService notesService, CredentialService credentialsService, EncryptionService encryptionService) {
         this.filesService = filesService;
         this.notesService = notesService;
+        this.credentialsService = credentialsService;
         this.encryptionService = encryptionService;
     }
 
@@ -43,7 +50,7 @@ public class HomeController {
     public void postConstruct() {
         files = new ArrayList<>();
         notes = new ArrayList<>();
-
+        credentials = new ArrayList<>();
     }
 
     @GetMapping
@@ -53,6 +60,7 @@ public class HomeController {
 
         files = filesService.getFilesByUserId(user.getUserId());
         notes = notesService.getNotesByUserId(user.getUserId());
+        credentials = credentialsService.getCredentialsByUserId(user.getUserId());
         model.addAttribute("activeTab", "files");
         setLists(model);
         return "home";
@@ -89,7 +97,6 @@ public class HomeController {
 
             filesService.saveFile(file);
 
-            // reload files list
             files = filesService.getFilesByUserId(user.getUserId());
             model.addAttribute("filesMessage", "File uploaded successfully!");
 
@@ -168,7 +175,6 @@ public class HomeController {
         setLists(model);
 
         return "home";
-
     }
 
     @PostMapping("/note-delete")
@@ -187,12 +193,65 @@ public class HomeController {
         setLists(model);
 
         return "home";
-
     }
 
+    @PostMapping("/credential-save")
+    public String saveCredential(@RequestParam(required = false) Integer credentialId, @RequestParam String url, @RequestParam String username, @RequestParam String password
+            , Authentication auth, Model model) {
+        try {
+            User user = (User) auth.getDetails();
+
+            SecureRandom random = new SecureRandom();
+            byte[] key = new byte[16];
+            random.nextBytes(key);
+            String encodedKey = Base64.getEncoder().encodeToString(key);
+            String encryptedPassword = encryptionService.encryptValue(password, encodedKey);
+
+            Credential credential = new Credential(credentialId, url, username, encodedKey, encryptedPassword, user.getUserId());
+
+            credentialsService.saveCredential(credential);
+
+            credentials = credentialsService.getCredentialsByUserId(user.getUserId());
+            model.addAttribute("activeTab", "credentials");
+
+            if (credentialId == null)
+                model.addAttribute("credentialsMessage", "Credential added successfully!");
+            else
+                model.addAttribute("credentialsMessage", "Credential updated successfully!");
+        } catch (Exception e) {
+            model.addAttribute("credentialsError", e.getMessage());
+        }
+        setLists(model);
+
+        return "home";
+    }
+
+    @PostMapping("/credential-delete")
+    public String deleteCredential(@RequestParam Integer credentialId, Authentication auth, Model model) {
+        try {
+            credentialsService.deleteCredential(credentialId);
+
+            User user = (User) auth.getDetails();
+
+            credentials = credentialsService.getCredentialsByUserId(user.getUserId());
+            model.addAttribute("activeTab", "credentials");
+            model.addAttribute("credentialsMessage", "Credential deleted!");
+        } catch (Exception e) {
+            model.addAttribute("credentialsError", e.getMessage());
+        }
+        setLists(model);
+
+        return "home";
+
+    }
 
     private void setLists(Model model) {
         model.addAttribute("files", files);
         model.addAttribute("notes", notes);
+        for (Credential credential : credentials) {
+            credential.setDecryptedPassword(encryptionService.decryptValue(credential.getPassword(), credential.getKey()));
+        }
+
+        model.addAttribute("credentials", credentials);
     }
 }
