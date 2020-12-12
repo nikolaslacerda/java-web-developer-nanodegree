@@ -1,9 +1,11 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.File;
+import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.EncryptionService;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
+import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,18 +27,23 @@ import java.util.List;
 public class HomeController {
 
     private final FileService filesService;
+    private final NoteService notesService;
     private final EncryptionService encryptionService;
 
     private List<File> files;
+    private List<Note> notes;
 
-    public HomeController(FileService filesService, EncryptionService encryptionService) {
+    public HomeController(FileService filesService, NoteService notesService, EncryptionService encryptionService) {
         this.filesService = filesService;
+        this.notesService = notesService;
         this.encryptionService = encryptionService;
     }
 
     @PostConstruct
     public void postConstruct() {
         files = new ArrayList<>();
+        notes = new ArrayList<>();
+
     }
 
     @GetMapping
@@ -45,6 +52,7 @@ public class HomeController {
         User user = (User) auth.getDetails();
 
         files = filesService.getFilesByUserId(user.getUserId());
+        notes = notesService.getNotesByUserId(user.getUserId());
         model.addAttribute("activeTab", "files");
         setLists(model);
         return "home";
@@ -137,8 +145,54 @@ public class HomeController {
         return "home";
     }
 
+    @PostMapping("/note-save")
+    public String saveNote(@RequestParam(required = false) Integer noteId, @RequestParam("noteTitle") String noteTitle,
+                           @RequestParam("noteDescription") String noteDescription, Authentication auth, Model model) {
+
+        try {
+            User user = (User) auth.getDetails();
+
+            Note note = new Note(noteId, noteTitle, noteDescription, user.getUserId());
+
+            notesService.saveNote(note);
+
+            notes = notesService.getNotesByUserId(user.getUserId());
+            model.addAttribute("activeTab", "notes");
+            if (noteId == null)
+                model.addAttribute("notesMessage", "Note added successfully!");
+            else
+                model.addAttribute("notesMessage", "Note updated successfully!");
+        } catch (Exception e) {
+            model.addAttribute("notesError", e.getMessage());
+        }
+        setLists(model);
+
+        return "home";
+
+    }
+
+    @PostMapping("/note-delete")
+    public String deleteNote(@RequestParam("noteId") Integer noteId, Authentication auth, Model model) {
+        try {
+            notesService.deleteNote(noteId);
+
+            User user = (User) auth.getDetails();
+
+            notes = notesService.getNotesByUserId(user.getUserId());
+            model.addAttribute("activeTab", "notes");
+            model.addAttribute("notesMessage", "Note deleted!");
+        } catch (Exception e) {
+            model.addAttribute("notesError", e.getMessage());
+        }
+        setLists(model);
+
+        return "home";
+
+    }
+
 
     private void setLists(Model model) {
         model.addAttribute("files", files);
+        model.addAttribute("notes", notes);
     }
 }
