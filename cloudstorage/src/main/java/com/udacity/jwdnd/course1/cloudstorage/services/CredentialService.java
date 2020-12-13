@@ -1,6 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage.services;
 
-import com.udacity.jwdnd.course1.cloudstorage.mapper.CredentialsMapper;
+import com.udacity.jwdnd.course1.cloudstorage.mapper.CredentialMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
 import org.springframework.stereotype.Service;
 
@@ -9,9 +9,9 @@ import java.util.List;
 @Service
 public class CredentialService {
 
-    private final CredentialsMapper credentialsMapper;
+    private final CredentialMapper credentialsMapper;
 
-    public CredentialService(CredentialsMapper credentialsMapper) {
+    public CredentialService(CredentialMapper credentialsMapper) {
         this.credentialsMapper = credentialsMapper;
     }
 
@@ -29,8 +29,8 @@ public class CredentialService {
         return credentialId;
     }
 
-    public void deleteCredential(Integer credentialId) {
-        credentialsMapper.deleteCredentialById(credentialId);
+    public int deleteCredential(Integer credentialId, Integer userId) {
+        return credentialsMapper.deleteCredential(credentialId, userId);
     }
 
     public Credential getCredentialById(Integer credentialId) {

@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.*;
 import java.util.List;
 
 @Mapper
-public interface FilesMapper {
+public interface FileMapper {
     @Select("SELECT * FROM FILES WHERE filename = #{fileName} AND userid = #{userId}")
     File getFileByFileName(String fileName, Integer userId);
 
@@ -20,6 +20,6 @@ public interface FilesMapper {
     @Select("SELECT * FROM FILES WHERE userid = #{userId}")
     List<File> getFilesByUserId(Integer userId);
 
-    @Delete("DELETE FROM FILES WHERE fileid = #{fileId}")
-    void deleteFileByFileId(Integer fileId);
+    @Delete("DELETE FROM FILES WHERE fileid = #{fileId} AND userid = #{userId}")
+    int deleteFile(Integer fileId, Integer userId);
 }

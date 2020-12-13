@@ -34,7 +34,7 @@
         <div class="tab-content" id="nav-tabContent">
             <div class="tab-pane fade" th:classappend="${#strings.equals(activeTab, 'files') ? 'show active' : ''}"
                  id="nav-files" role="tabpanel" aria-labelledby="nav-files-tab">
-                <form action="#" enctype="multipart/form-data" id="uploadForm" th:action="@{/file-upload}"
+                <form action="#" enctype="multipart/form-data" id="uploadForm" th:action="@{/files/file-upload}"
                       method="POST">
                     <div class="container">
                         <div class="row" style="margin: 1em;">
@@ -52,12 +52,7 @@
                         </div>
                     </div>
                 </form>
-                <div id="upload-error-msg" th:if="${uploadError}" class="alert alert-danger">
-                    <span th:text="${uploadError}"></span>
-                </div>
-                <div id="files-msg" th:if="${filesMessage}" class="alert alert-info hide-after-delay">
-                    <span th:text="${filesMessage}"></span>
-                </div>
+
                 <div class="table-responsive">
                     <table class="table table-striped" id="fileTable">
                         <thead>
@@ -73,8 +68,8 @@
                         </tr>
                         <tr th:unless="${#lists.isEmpty(files)}" th:each="file : ${files}">
                             <td>
-                                <form action="#" method="POST" th:action="@{/file-delete}" th:object="${file}">
-                                    <a target="_blank" th:href="@{/file-view(fileId=*{fileId})}"
+                                <form action="#" method="POST" th:action="@{/files/file-delete}" th:object="${file}">
+                                    <a target="_blank" th:href="@{/files/file-view(fileId=*{fileId})}"
                                        class="btn btn-success">View</a>
                                     <input type="hidden" name="fileId" th:value="*{fileId}">
                                     <button type="submit" class="btn btn-danger"
@@ -95,12 +90,6 @@
                         onclick="showNoteModal()">
                     + Add a New Note
                 </button>
-                <div id="notes-error" th:if="${notesError}" class="alert alert-danger w-50 hide-after-delay">
-                    <span th:text="${notesError}"></span>
-                </div>
-                <div id="notes-msg" th:if="${notesMessage}" class="alert alert-info w-50 hide-after-delay">
-                    <span th:text="${notesMessage}"></span>
-                </div>
                 <div class="table-responsive">
                     <table class="table table-striped" id="userTable">
                         <thead>
@@ -117,7 +106,7 @@
                         </tr>
                         <tr th:unless="${#lists.isEmpty(notes)}" class="note-row" th:each="note : ${notes}">
                             <td>
-                                <form action="#" method="POST" th:action="@{/note-delete}">
+                                <form action="#" method="POST" th:action="@{/notes/note-delete}">
                                     <button type="button" class="btn btn-success note-edit"
                                             th:attr="onclick=|showNoteModal(${note.noteId}, '${note.noteTitle}', '${note.noteDescription}')|">
                                         Edit
@@ -147,7 +136,7 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <form action="#" method="POST" th:action="@{/note-save}">
+                                <form action="#" method="POST" th:action="@{/notes/note-save}">
                                     <input type="hidden" name="noteId" id="note-id">
                                     <div class="form-group">
                                         <label for="note-title" class="col-form-label">Title</label>
@@ -183,13 +172,6 @@
                         onclick="showCredentialModal()">
                     + Add a New Credential
                 </button>
-                <div id="credentials-error" th:if="${credentialsError}"
-                     class="alert alert-danger w-50 hide-after-delay">
-                    <span th:text="${credentialsError}"></span>
-                </div>
-                <div id="credentials-msg" th:if="${credentialsMessage}" class="alert alert-info w-50 hide-after-delay">
-                    <span th:text="${credentialsMessage}"></span>
-                </div>
                 <div class="table-responsive">
                     <table class="table table-striped" th:object="${credentials}" id="credentialTable">
                         <thead>
@@ -208,7 +190,7 @@
                         <tr th:unless="${#lists.isEmpty(credentials)}" th:each="credential : ${credentials}"
                             class="credential-row">
                             <td>
-                                <form action="#" method="POST" th:action="@{/credential-delete}">
+                                <form action="#" method="POST" th:action="@{/credentials/credential-delete}">
                                     <button type="button" class="btn btn-success credential-edit"
                                             th:attr="onclick=|showCredentialModal(${credential.credentialId}, '${credential.url}', '${credential.username}', '${credential.decryptedPassword}')|">
                                         Edit
@@ -239,7 +221,7 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <form action="#" method="POST" th:action="@{/credential-save}">
+                                <form action="#" method="POST" th:action="@{/credentials/credential-save}">
                                     <input type="hidden" name="credentialId" id="credential-id">
                                     <div class="form-group">
                                         <label for="note-title" class="col-form-label">URL</label>
@@ -253,7 +235,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="note-title" class="col-form-label">Password</label>
-                                        <input type="text" name="password" class="form-control" id="credential-password"
+                                        <input type="password" name="password" class="form-control"
+                                               id="credential-password"
                                                maxlength="30" required>
                                     </div>
                                     <button id="credentialSubmit" type="submit" class="d-none"></button>

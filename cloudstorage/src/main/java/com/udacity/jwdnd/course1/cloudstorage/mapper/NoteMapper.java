@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.*;
 import java.util.List;
 
 @Mapper
-public interface NotesMapper {
+public interface NoteMapper {
     @Select("SELECT * FROM NOTES WHERE userid = #{userId}")
     List<Note> getNotesByUserId(Integer userId);
 
@@ -17,6 +17,6 @@ public interface NotesMapper {
     @Options(useGeneratedKeys = true, keyProperty = "noteId")
     Integer saveNote(Note note);
 
-    @Delete("DELETE FROM NOTES WHERE noteid = #{noteId}")
-    void deleteNoteByNoteId(Integer noteId);
+    @Delete("DELETE FROM NOTES WHERE noteid = #{noteId} AND userid = #{userId}")
+    int deleteNote(Integer noteId, Integer userId);
 }
