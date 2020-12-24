@@ -3,7 +3,6 @@ package com.udacity.jwdnd.course1.cloudstorage.controller;
 import com.udacity.jwdnd.course1.cloudstorage.model.File;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
-import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,7 +28,6 @@ public class FileController {
 
     @PostMapping("/file-upload")
     public String uploadFile(@RequestParam("fileUpload") MultipartFile fileUpload, Authentication auth, Model model) throws IOException {
-
         User user = (User) auth.getDetails();
         Integer userId = user.getUserId();
 
@@ -63,7 +61,6 @@ public class FileController {
 
     @GetMapping("/file-view")
     public void viewFile(@RequestParam("fileId") Integer fileId, HttpServletResponse response) {
-
         File file = fileService.getFileByFileId(fileId);
 
         if (file != null) {
@@ -85,16 +82,15 @@ public class FileController {
 
     @PostMapping("/file-delete")
     public String deleteFile(@RequestParam("fileId") Integer fileId, Authentication auth, Model model) {
-            User user = (User) auth.getDetails();
-            Integer userId = user.getUserId();
+        User user = (User) auth.getDetails();
+        Integer userId = user.getUserId();
 
-            int result = this.fileService.deleteFile(fileId, userId);
-            if (result > 0) {
-                model.addAttribute("resultSuccess", true);
-            } else {
-                model.addAttribute("resultError", "File ID does not exist.");
-            }
-            return "result";
-
+        int result = this.fileService.deleteFile(fileId, userId);
+        if (result > 0) {
+            model.addAttribute("resultSuccess", true);
+        } else {
+            model.addAttribute("resultError", "File ID does not exist.");
+        }
+        return "result";
     }
 }

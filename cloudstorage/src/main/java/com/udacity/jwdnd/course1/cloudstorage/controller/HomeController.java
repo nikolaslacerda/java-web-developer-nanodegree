@@ -17,13 +17,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/home")
 public class HomeController {
 
-    private final UserService userService;
     private final FileService fileService;
     private final NoteService noteService;
     private final CredentialService credentialService;
 
-    public HomeController(UserService userService, FileService fileService, NoteService noteService, CredentialService credentialService) {
-        this.userService = userService;
+    public HomeController(FileService fileService, NoteService noteService, CredentialService credentialService) {
         this.fileService = fileService;
         this.noteService = noteService;
         this.credentialService = credentialService;

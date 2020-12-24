@@ -3,11 +3,12 @@ package com.udacity.jwdnd.course1.cloudstorage.controller;
 import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
-import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/notes")
@@ -22,7 +23,6 @@ public class NoteController {
     @PostMapping("/note-save")
     public String saveNote(@RequestParam(required = false) Integer noteId, @RequestParam("noteTitle") String noteTitle,
                            @RequestParam("noteDescription") String noteDescription, Authentication auth, Model model) {
-
         User user = (User) auth.getDetails();
 
         Note note = new Note(noteId, noteTitle, noteDescription, user.getUserId());
@@ -47,8 +47,6 @@ public class NoteController {
         } else {
             model.addAttribute("resultError", "Note ID does not exist.");
         }
-
         return "result";
     }
-
 }

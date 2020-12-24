@@ -29,7 +29,6 @@ public class CredentialController {
     @PostMapping("/credential-save")
     public String saveCredential(@RequestParam(required = false) Integer credentialId, @RequestParam String url, @RequestParam String username, @RequestParam String password
             , Authentication auth, Model model) {
-
         User user = (User) auth.getDetails();
         Integer userId = user.getUserId();
 
@@ -39,18 +38,16 @@ public class CredentialController {
         String encodedKey = Base64.getEncoder().encodeToString(key);
         String encryptedPassword = encryptionService.encryptValue(password, encodedKey);
 
+        System.out.println(encodedKey);
+        System.out.println(encryptedPassword);
+
         Credential credential = new Credential(credentialId, url, username, encodedKey, encryptedPassword, user.getUserId());
+
+        System.out.println(credential.getDecryptedPassword());
 
         credentialService.saveCredential(credential);
 
         model.addAttribute("activeTab", "credentials");
-
-        if (credentialId == null) {
-            model.addAttribute("credentialsMessage", "Credential added successfully!");
-        } else {
-            model.addAttribute("credentialsMessage", "Credential updated successfully!");
-        }
-
         model.addAttribute("credentials", this.credentialService.getCredentialsByUserId(userId));
         model.addAttribute("resultSuccess", true);
         return "result";
@@ -58,7 +55,6 @@ public class CredentialController {
 
     @PostMapping("/credential-delete")
     public String deleteCredential(@RequestParam Integer credentialId, Authentication auth, Model model) {
-
         User user = (User) auth.getDetails();
         Integer userId = user.getUserId();
 
@@ -69,7 +65,6 @@ public class CredentialController {
         } else {
             model.addAttribute("resultError", "Credential ID does not exist.");
         }
-
         return "result";
     }
 }

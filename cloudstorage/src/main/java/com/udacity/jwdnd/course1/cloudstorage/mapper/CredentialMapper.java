@@ -7,7 +7,6 @@ import java.util.List;
 
 @Mapper
 public interface CredentialMapper {
-
     @Select("SELECT * FROM CREDENTIALS WHERE userid = #{userId}")
     List<Credential> getCredentialsByUserId(Integer userId);
 
@@ -20,7 +19,6 @@ public interface CredentialMapper {
 
     @Delete("DELETE FROM CREDENTIALS WHERE credentialid=#{credentialId} AND userid=#{userId}")
     Integer deleteCredential(Integer credentialId, Integer userId);
-
 
     @Select("SELECT * FROM CREDENTIALS WHERE credentialid = #{credentialId}")
     Credential getCredentialById(Integer credentialId);
