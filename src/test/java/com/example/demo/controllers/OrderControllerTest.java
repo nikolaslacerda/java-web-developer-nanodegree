@@ -46,8 +46,6 @@ public class OrderControllerTest {
     public void setUp() {
         orderController = new OrderController();
         TestUtils.injectObjects(orderController, "userRepository", userRepository);
-        TestUtils.injectObjects(orderController, "cartRepository", cartRepository);
-        TestUtils.injectObjects(orderController, "itemRepository", itemRepository);
         TestUtils.injectObjects(orderController, "orderRepository", orderRepository);
     }
 

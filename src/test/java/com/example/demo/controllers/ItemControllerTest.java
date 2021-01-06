@@ -43,8 +43,6 @@ public class ItemControllerTest {
     @Before
     public void setUp() {
         itemController = new ItemController();
-        TestUtils.injectObjects(itemController, "userRepository", userRepository);
-        TestUtils.injectObjects(itemController, "cartRepository", cartRepository);
         TestUtils.injectObjects(itemController, "itemRepository", itemRepository);
     }
 
